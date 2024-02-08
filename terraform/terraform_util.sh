@@ -41,21 +41,15 @@ tfcolor() {
         | grep -e $green -e $red -e $yellow
     elif [[ "$1" = "" ]]; then
         # --- color changes in plan with bg color ---
-        # remove color reset
-        # put color reset at the end
-        # replace fg color with bg color
-        # remove remaining fg colors (to see $black over bg colors)
-        # TODO: join regex for fg colors (to remove them all except $black)
-        sed -u \
-          -e "s/$reset//g" \
-          -e "s/$/$reset/" \
-          -e "s/$green/$greenbg$black/" \
-          -e "s/$red/$redbg$black/" \
-          -e "s/$yellow/$yellowbg$black/" \
-          -e "s/$green//g" \
-          -e "s/$red//g" \
-          -e "s/$yellow//g" \
-          -e "s/$grey//g"
+        # remove reset
+        # put reset at the end
+        # replace fg color with bg color in update lines, that start with [+-~]
+        sed -E -u \
+          -e "/^ +($yellow~|$green+|$red-)/s/$reset//g" \
+          -e "/^ +($yellow~|$green+|$red-)/s/$/$reset/" \
+          -e "/^ +$green+/s/$green/$greenbg$black/g" \
+          -e "/^ +$red-/s/$red/$redbg$black/g" \
+          -e "/^ +$yellow~/s/$yellow/$yellowbg$black/g"
     else
       print "${red}Wrong option:${reset} $1\n" 1>&2
     fi
